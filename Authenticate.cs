@@ -12,7 +12,7 @@ public class Authenticate
     {
         try
         {
-            DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[]{".env"}));
+            DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] { ".env" }));
             var envVar = DotEnv.Read();
             var accessKeyId = envVar["ACCESS_KEY_ID"];
             var secret_acess_key_id = envVar["SECRET_ACCESS_KEY"];
