@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CompressSharp — Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080E14;
+      --surface:   #0F1923;
+      --card:      #162030;
+      --border:    #1E3044;
+      --accent:    #00C2A8;
+      --accent-dim:#007A6B;
+      --amber:     #F5A623;
+      --red:       #E05B5B;
+      --text:      #D4E2F0;
+      --muted:     #6B8299;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,14,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 56px;
+    }
+    .nav-brand {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+    .nav-brand span { color: var(--muted); }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2.5rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: var(--mono);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      color: #EAF4FF;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 3rem; }
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge.green  { border-color: #1d4a2a; color: #3FB950; background: #0d1f14; }
+    .badge.blue   { border-color: #1a3357; color: #58A6FF; background: #0b1a2c; }
+    .badge.amber  { border-color: #3d2e0f; color: var(--amber); background: #1c1508; }
+
+    /* ── PIPELINE DIAGRAM ── */
+    .pipeline-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 4rem;
+      overflow-x: auto;
+    }
+    .pipeline-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+    }
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: 560px;
+    }
+    .p-node {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .p-icon {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      transition: border-color 0.3s;
+    }
+    .p-node:hover .p-icon { border-color: var(--accent); }
+    .p-node-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .p-node-sub {
+      font-size: 0.65rem;
+      color: var(--accent-dim);
+      text-align: center;
+      font-family: var(--mono);
+    }
+    .p-arrow {
+      color: var(--border);
+      font-size: 1.2rem;
+      padding: 0 0.3rem;
+      flex-shrink: 0;
+      animation: pulse-arrow 2.4s ease-in-out infinite;
+    }
+    .p-arrow:nth-child(2)  { animation-delay: 0.4s; }
+    .p-arrow:nth-child(4)  { animation-delay: 0.8s; }
+    .p-arrow:nth-child(6)  { animation-delay: 1.2s; }
+    @keyframes pulse-arrow {
+      0%, 100% { color: var(--border); }
+      50% { color: var(--accent); }
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2.5rem 5rem;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.8rem;
+      margin-top: 3.5rem;
+    }
+    .section-header h2 {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #EAF4FF;
+      letter-spacing: -0.01em;
+    }
+    .section-line {
+      flex: 1; height: 1px; background: var(--border);
+    }
+    .section-tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── CARDS ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.4rem 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+    .card-icon { font-size: 1.4rem; margin-bottom: 0.75rem; }
+    .card h3 {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #EAF4FF;
+      margin-bottom: 0.5rem;
+    }
+    .card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── PROBLEM BOX ── */
+    .problem-box {
+      background: #120c08;
+      border: 1px solid #3d1f0f;
+      border-left: 3px solid var(--amber);
+      border-radius: 8px;
+      padding: 1.4rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .problem-box .pb-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .problem-box p { font-size: 0.9rem; color: #c9a877; }
+
+    .solution-box {
+      background: #081209;
+      border: 1px solid #1a3d22;
+      border-left: 3px solid #3FB950;
+      border-radius: 8px;
+      padding: 1.4rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .solution-box .pb-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: #3FB950;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .solution-box p { font-size: 0.9rem; color: #8ec99a; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.2rem;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+    }
+    .code-filename {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .code-lang {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .code-body {
+      padding: 1.2rem 1.4rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.75;
+      color: #abb8c7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .kw  { color: #58A6FF; }
+    .cl  { color: #F0B37E; }
+    .str { color: #3FB950; }
+    .cm  { color: #4a5f72; }
+    .ac  { color: var(--accent); }
+
+    /* ── API TABLE ── */
+    .api-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-bottom: 1.5rem;
+    }
+    .api-table th {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: left;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .api-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #0f1d2a;
+      vertical-align: top;
+    }
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table tr:hover td { background: var(--card); }
+    .mono-inline {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      background: #0b1a1f;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .td-type { color: #58A6FF; font-family: var(--mono); font-size: 0.78rem; }
+    .td-desc { color: var(--muted); }
+
+    /* ── STEP LIST ── */
+    .step-list { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 1.2rem;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      width: 28px; height: 28px;
+      border: 1px solid var(--accent-dim);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .step-content h4 {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #EAF4FF;
+      margin-bottom: 0.3rem;
+    }
+    .step-content p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── ENV TABLE ── */
+    .env-table { width: 100%; border-collapse: collapse; }
+    .env-table tr { border-bottom: 1px solid #0f1d2a; }
+    .env-table tr:last-child { border-bottom: none; }
+    .env-table td { padding: 0.7rem 1rem; font-size: 0.84rem; }
+    .env-table td:first-child { font-family: var(--mono); color: var(--accent); font-size: 0.78rem; }
+    .env-table td:last-child { color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+      .hero, .container { padding-left: 1.2rem; padding-right: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Compress<span>Sharp</span></div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#usage">Usage</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">// CompressSharp v1.0 — Documentation</div>
+  <h1>Compress S3 datasets<br/>for <em>constrained</em> ML training</h1>
+  <p class="hero-sub">
+    A C# library that authenticates with your AWS credentials, locates large CSV datasets in S3, and compresses them in place — so ML engineers can work within local storage and memory limits.
+  </p>
+  <div class="badge-row">
+    <span class="badge green">✓ .NET 6+</span>
+    <span class="badge blue">AWS S3 + STS</span>
+    <span class="badge amber">GZip Compression</span>
+    <span class="badge">AWSSDK.S3</span>
+    <span class="badge">dotenv.net</span>
+  </div>
+
+  <!-- Pipeline diagram -->
+  <div class="pipeline-wrap">
+    <div class="pipeline-label">// data flow</div>
+    <div class="pipeline">
+      <div class="p-node">
+        <div class="p-icon">🪣</div>
+        <div class="p-node-label">AWS S3</div>
+        <div class="p-node-sub">source bucket</div>
+      </div>
+      <div class="p-arrow">──▶</div>
+      <div class="p-node">
+        <div class="p-icon">🔐</div>
+        <div class="p-node-label">Authenticate</div>
+        <div class="p-node-sub">STS verify</div>
+      </div>
+      <div class="p-arrow">──▶</div>
+      <div class="p-node">
+        <div class="p-icon">🔍</div>
+        <div class="p-node-label">SearchCsv</div>
+        <div class="p-node-sub">locate dataset</div>
+      </div>
+      <div class="p-arrow">──▶</div>
+      <div class="p-node">
+        <div class="p-icon">🗜️</div>
+        <div class="p-node-label">GZip</div>
+        <div class="p-node-sub">compress stream</div>
+      </div>
+      <div class="p-arrow">──▶</div>
+      <div class="p-node">
+        <div class="p-icon">💾</div>
+        <div class="p-node-label">Local disk</div>
+        <div class="p-node-sub">filename.csv.gz</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- OVERVIEW -->
+  <div id="overview" class="section-header">
+    <span class="section-tag">01</span>
+    <h2>Why CompressSharp</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="problem-box">
+    <div class="pb-label">⚠ The Problem</div>
+    <p>Large training datasets stored in S3 are often too big to load directly — GPU instances run out of memory, local disks fill up, and data pipelines stall before a single epoch completes.</p>
+  </div>
+  <div class="solution-box">
+    <div class="pb-label">✓ The Solution</div>
+    <p>CompressSharp streams the dataset from S3 directly into a GZip compression pipeline, writing only the compressed output to disk. No intermediate full-size download. Compressed files are smaller, faster to read in chunks, and compatible with most ML data loaders.</p>
+  </div>
+
+  <div class="card-grid" style="margin-top:1.5rem;">
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <h3>Credential Auth</h3>
+      <p>Uses AWS STS <code style="font-family:var(--mono);font-size:0.78rem;color:var(--accent)">GetCallerIdentity</code> to verify your IAM credentials before touching any data.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h3>Dataset Lookup</h3>
+      <p>Resolves a bucket name and filename against S3 object metadata — fails fast with a clear error if the file does not exist.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗜️</div>
+      <h3>Stream Compression</h3>
+      <p>Pipes the S3 response stream through GZip without writing the raw file — keeps disk usage to the compressed size only.</p>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup" class="section-header">
+    <span class="section-tag">02</span>
+    <h2>Setup &amp; Configuration</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--muted);margin-bottom:1.4rem;font-size:0.9rem;">
+    CompressSharp reads credentials from a <code class="mono-inline">.env</code> file in your working directory. Create the file with the following keys before running:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-filename">.env</span>
+      <span class="code-lang">ENV</span>
+    </div>
+    <div class="code-body"><span class="cm"># Your IAM user credentials (not root)</span>
+ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+REGION=us-east-1</div>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.4rem;margin-bottom:1.5rem;">
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.8rem;">Required .env Keys</div>
+    <table class="env-table">
+      <tr><td>ACCESS_KEY_ID</td><td>IAM access key ID for the user with S3 read permissions</td></tr>
+      <tr><td>SECRET_ACCESS_KEY</td><td>Corresponding IAM secret access key</td></tr>
+      <tr><td>REGION</td><td>AWS region of your S3 bucket, e.g. <code class="mono-inline">us-east-1</code></td></tr>
+    </table>
+  </div>
+
+  <p style="color:var(--muted);font-size:0.85rem;">Install the NuGet dependencies listed in <code class="mono-inline">CompressSharp.csproj</code> with <code class="mono-inline">dotnet restore</code> before first run.</p>
+
+  <!-- API REFERENCE -->
+  <div id="api" class="section-header">
+    <span class="section-tag">03</span>
+    <h2>API Reference</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Authenticate -->
+  <div style="margin-bottom:2.2rem;">
+    <div style="font-family:var(--mono);font-size:0.8rem;color:#EAF4FF;margin-bottom:0.5rem;">
+      <span class="kw">namespace</span> <span class="ac">CompressSharp.Auth</span> — <span class="cl">Authenticate</span>
+    </div>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem;">Verifies that the credentials in your <code class="mono-inline">.env</code> file are valid and have sufficient permissions before any S3 operations begin.</p>
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Returns</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="mono-inline">Verify()</span></td>
+          <td><span class="td-type">Task&lt;bool&gt;</span></td>
+          <td class="td-desc">Loads <code class="mono-inline">.env</code>, builds credentials, calls STS <code class="mono-inline">GetCallerIdentity</code>. Returns <code class="mono-inline">true</code> on success, <code class="mono-inline">false</code> on any auth failure. Prints the exception message to stdout.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SearchCsv -->
+  <div>
+    <div style="font-family:var(--mono);font-size:0.8rem;color:#EAF4FF;margin-bottom:0.5rem;">
+      <span class="kw">namespace</span> <span class="ac">CompressSharp.Search</span> — <span class="cl">SearchCsv</span>
+    </div>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem;">Locates a CSV file in S3 by bucket and key, then streams and compresses it to the current working directory.</p>
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Signature / Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="mono-inline">SearchCsv()</span></td>
+          <td><span class="td-type">Constructor</span></td>
+          <td class="td-desc">Accepts <code class="mono-inline">BasicAWSCredentials</code> and <code class="mono-inline">RegionEndpoint</code>; instantiates the internal <code class="mono-inline">AmazonS3Client</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="mono-inline">FindCsv(bucket, filename)</span></td>
+          <td><span class="td-type">Task</span></td>
+          <td class="td-desc">Checks the S3 object exists via <code class="mono-inline">GetObjectMetadata</code>. If found, calls <code class="mono-inline">CompressAndDownload</code>. Handles <code class="mono-inline">404 NotFound</code> gracefully with a clear console message.</td>
+        </tr>
+        <tr>
+          <td><span class="mono-inline">CompressAndDownload(bucket, filename)</span></td>
+          <td><span class="td-type">Task (internal)</span></td>
+          <td class="td-desc">Streams the S3 object response directly into a <code class="mono-inline">GZipStream</code>. Writes <code class="mono-inline">filename.gz</code> to the current directory. No full-size intermediate file is created on disk.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- USAGE -->
+  <div id="usage" class="section-header">
+    <span class="section-tag">04</span>
+    <h2>Usage Walkthrough</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="step-list" style="margin-bottom:2rem;">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Verify credentials</h4>
+        <p>Always call <code class="mono-inline">Verify()</code> first. If it returns <code class="mono-inline">false</code>, stop — subsequent S3 calls will fail with access denied errors.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Instantiate SearchCsv with your credentials</h4>
+        <p>Read the same credentials from your env and pass them to the <code class="mono-inline">SearchCsv</code> constructor alongside the region endpoint.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Call FindCsv with bucket and filename</h4>
+        <p>Provide the exact S3 key (filename) and bucket name. The library resolves the file, streams it, and writes a <code class="mono-inline">.gz</code> file to your working directory.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Load the compressed file in your training pipeline</h4>
+        <p>Point your data loader at the <code class="mono-inline">.gz</code> file. Most Python ML frameworks (PyTorch, TensorFlow) support reading GZip-compressed CSVs directly via <code class="mono-inline">pandas.read_csv(..., compression='gzip')</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-filename">Program.cs</span>
+      <span class="code-lang">C#</span>
+    </div>
+    <div class="code-body"><span class="kw">using</span> CompressSharp.Auth;
+<span class="kw">using</span> CompressSharp.Search;
+<span class="kw">using</span> Amazon;
+<span class="kw">using</span> Amazon.Runtime;
+<span class="kw">using</span> dotenv.net;
+
+<span class="cm">// Step 1 — verify credentials</span>
+<span class="kw">var</span> auth = <span class="kw">new</span> <span class="cl">Authenticate</span>();
+<span class="kw">bool</span> ok = <span class="kw">await</span> auth.<span class="ac">Verify</span>();
+
+<span class="kw">if</span> (!ok)
+{
+    Console.<span class="ac">WriteLine</span>(<span class="str">"Auth failed. Check your .env credentials."</span>);
+    <span class="kw">return</span>;
+}
+
+<span class="cm">// Step 2 — build credentials for S3 client</span>
+<span class="kw">var</span> env = DotEnv.<span class="ac">Read</span>();
+<span class="kw">var</span> creds  = <span class="kw">new</span> <span class="cl">BasicAWSCredentials</span>(env[<span class="str">"ACCESS_KEY_ID"</span>], env[<span class="str">"SECRET_ACCESS_KEY"</span>]);
+<span class="kw">var</span> region = RegionEndpoint.<span class="ac">GetBySystemName</span>(env[<span class="str">"REGION"</span>]);
+
+<span class="cm">// Step 3 — locate and compress the dataset</span>
+<span class="kw">var</span> search = <span class="kw">new</span> <span class="cl">SearchCsv</span>(creds, region);
+<span class="kw">await</span> search.<span class="ac">FindCsv</span>(<span class="str">"my-ml-datasets"</span>, <span class="str">"training/imagenet_labels.csv"</span>);
+
+<span class="cm">// Output: ./imagenet_labels.csv.gz</span>
+<span class="cm">// Step 4 — use in Python training script:</span>
+<span class="cm">// df = pd.read_csv("imagenet_labels.csv.gz", compression="gzip")</span></div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section-header">
+    <span class="section-tag">05</span>
+    <h2>Notes &amp; Constraints</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📁</div>
+      <h3>CSV files only</h3>
+      <p>The current version targets CSV datasets. Other formats (Parquet, HDF5) are not yet supported.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <h3>IAM permissions needed</h3>
+      <p>Your IAM user needs <code style="font-family:var(--mono);font-size:0.75rem;color:var(--accent)">s3:GetObject</code> and <code style="font-family:var(--mono);font-size:0.75rem;color:var(--accent)">s3:GetObjectMetadata</code> on the target bucket.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📂</div>
+      <h3>Output location</h3>
+      <p>The <code style="font-family:var(--mono);font-size:0.75rem;color:var(--accent)">.gz</code> file is always written to the directory from which the library is invoked — not a configurable path.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  CompressSharp — C# · AWS SDK · GZip &nbsp;|&nbsp; Generated documentation
+</footer>
+
+</body>
+</html>
